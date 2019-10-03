@@ -363,6 +363,9 @@ int update_map(int num, int** piece, int col){
     else if (num == 4) { // T4
 
     }
+    else if (num == 5) { // L1
+
+    }
     return 0;
 
 }
