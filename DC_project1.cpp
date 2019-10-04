@@ -1734,17 +1734,24 @@ int update_map(int num, int** piece, int col){
 
 
 int main(){
+    string M, N, Start_col;
     int start_col, num;
     string type_name;
-    cin >> m >> n;
+
+    ifstream input("tetris.data");
+    input >> M;
+    m = stoi(M);
+    input >> N;
+    n = stoi(N);
 
     while(1){
         // input block
-        cin >> type_name;
+        input >> type_name;
         if (type_name == "End")
             break;
 
-        cin >> start_col;
+        input >> Start_col;
+        start_col = stoi(Start_col);
         if (type_name == "T1")
             num = 1;
         else if (type_name == "T2")
@@ -1800,6 +1807,7 @@ int main(){
             }
             cout << endl;
         }
+        cout << endl << endl ;
 
         // game over
         if (gameover) {
