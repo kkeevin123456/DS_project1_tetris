@@ -1801,19 +1801,29 @@ int main(){
         int gameover = update_map(num, b.block_type, start_col);
 
         // debug : display map
-        for (int i=5; i<=m+4; i++) {
+        /*for (int i=5; i<=m+4; i++) {
             for (int j=1; j<=n; j++) {
                 cout << map[i][j] << " ";
             }
             cout << endl;
         }
-        cout << endl << endl ;
+        cout << endl << endl ;*/
 
         // game over
         if (gameover) {
-            cout << "Game Over!" << endl;
+            //cout << "Game Over!" << endl;
             break;
         }
-
     }
+
+    // Output to tetris.final
+    ofstream output("tetris.final");
+    for (int i=5; i<=m+4; i++) {
+        for (int j=1; j<=n; j++) {
+            output << map[i][j];
+        }
+        output << endl;
+    }
+
+    return 0;
 }
