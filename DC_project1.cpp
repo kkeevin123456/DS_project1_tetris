@@ -240,15 +240,14 @@ Block::~Block()
 class dot
 {
 public:
-    int i, j, live;
-    dot(int row, int col, int live);
+    int i, j;
+    dot(int row, int col);
 };
 
-dot::dot(int row, int col, int live)
+dot::dot(int row, int col)
 {
     i = row;
     j = col;
-    this->live = live;
 }
 
 int update_map(int num, int** piece, int col){
@@ -275,22 +274,21 @@ int update_map(int num, int** piece, int col){
 
     if (num == 1) { // T1
         map[3][col] = 1;
-        dot a(3, col, 1);
+        dot a(3, col);
 
         map[3][col+1] = 1;
-        dot b(3, col+1, 1);
+        dot b(3, col+1);
 
         map[3][col+2] = 1;
-        dot c(3, col+2, 1);
+        dot c(3, col+2);
 
         map[4][col+1] = 1;
-        dot d(4, col+1, 1);
+        dot d(4, col+1);
 
         // falling down
         int stop = 0;
         while(!stop){
-            if ( (d.i+1) > (m+4) ) stop = 1;
-            else if (a.live == 1 && b.live == 1 && c.live == 1 && d.live == 1 && (d.i+1) <= (m+4) ){ // T1丁字型
+            if ( (d.i+1) <= (m+4) ) { // T1丁字型
                 if (map[d.i+1][d.j] == 0 && map[a.i+1][a.j] == 0 && map[c.i+1][c.j] == 0) { // Ｔ１只要判斷ａ,ｄ,ｃ下面有沒有方塊就好
                     // a
                     map[a.i][a.j] = 0;
@@ -309,6 +307,7 @@ int update_map(int num, int** piece, int col){
                 }
                 else stop = 1;
             }
+            else stop = 1;
         }
         //看是否可以消除
         int clear = 1;
@@ -316,12 +315,11 @@ int update_map(int num, int** piece, int col){
             if (map[d.i][j] == 0) clear = 0;
         }
         if (clear) {
-            d.live = 0;
             for (int j=1; j<=n; j++) { // clear row --> d.i
                 map[d.i][j] = 0;
             }
 
-            for (int i = d.i-1; i>4; i--) { // 上面全部都往下移
+            for (int i = d.i-1; i>1; i--) { // 上面全部都往下移
                 for (int j=1; j<=n; j++) {
                     map[i+1][j] = map[i][j];
                     map[i][j] = 0;
@@ -339,7 +337,7 @@ int update_map(int num, int** piece, int col){
                 map[a.i][j] = 0;
             }
 
-            for (int i = a.i-1; i>4; i--) {
+            for (int i = a.i-1; i>1; i--) {
                 for (int j=1; j<=n; j++) {
                     map[i+1][j] = map[i][j];
                     map[i][j] = 0;
@@ -355,15 +353,530 @@ int update_map(int num, int** piece, int col){
         return 0; /// done!!!!
     }
     else if (num == 2) { // T2
+        map[2][col+1] = 1;
+        dot a(2, col+1);
 
+        map[3][col] = 1;
+        dot b(3, col);
+
+        map[3][col+1] = 1;
+        dot c(3, col+1);
+        
+        map[4][col+1] = 1;
+        dot d(4, col+1);
+
+        //falling down
+        int stop = 0;
+        while(!stop){
+            if ( (d.i+1) <= (m+4) ) {
+                if (map[b.i+1][b.j] == 0 && map[d.i+1][d.j] == 0) {
+                    // a
+                    map[a.i][a.j] = 0;
+                    a.i++;
+                    // b
+                    map[b.i][b.j] = 0;
+                    b.i++;
+                    map[b.i][b.j] = 1;
+                    // c
+                    c.i++;
+                    // d
+                    d.i++;
+                    map[d.i][d.j] = 1;
+                }
+                else stop = 1;
+            }
+            else stop = 1;
+        }
+        //看是否可以消除
+        int clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[d.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[d.i][j] = 0;
+            }
+            for (int i = d.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+            a.i++; b.i++; c.i++;
+        }
+        // 判斷 bc 那行可不可消
+        clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[b.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++)
+                map[b.i][j] = 0;
+
+            for (int i = b.i-1; i>1; i--) {
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+            a.i++;
+        }
+        // 判斷 a 那行可不可消
+        /*clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[a.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++)
+                map[a.i][j] = 0;
+
+            for (int i = a.i-1; i>1; i--) {
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+        }*/
+        //判斷是不是輸掉 看上面那塊區域還有沒有1
+        for (int i=1; i<5; i++) {
+            for (int j=1; j<=n; j++) {
+                if(map[i][j]==1) return 1;
+            }
+        }
+        return 0;
     }
     else if (num == 3) { // T3
+        map[3][col+1] = 1;
+        dot a(3, col+1);
 
+        map[4][col] = 1;
+        dot b(4, col);
+
+        map[4][col+1] = 1;
+        dot c(4, col+1);
+
+        map[4][col+2] = 1;
+        dot d(4, col+2);
+
+        // falling down
+        int stop = 0;
+        while(!stop){
+            if ( (d.i+1) <= (m+4) ) {
+                if (map[b.i+1][b.j] == 0 && map[c.i+1][c.j] == 0 && map[d.i+1][d.j] == 0) {
+                    // a
+                    map[a.i][a.j] = 0;
+                    a.i++;
+                    // b
+                    map[b.i][b.j] = 0;
+                    b.i++;
+                    map[b.i][b.j] = 1;
+                    // c
+                    c.i++;
+                    map[c.i][c.j] = 1;
+                    // d
+                    map[d.i][d.j] = 0;
+                    d.i++;
+                    map[d.i][d.j] = 1;
+                }
+                else stop = 1;
+            }
+            else stop = 1;
+        }
+        //看是否可以消除
+        int clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[d.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[d.i][j] = 0;
+            }
+            for (int i = d.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+            a.i++;
+        }
+        //判斷是不是輸掉 看上面那塊區域還有沒有1
+        for (int i=1; i<5; i++) {
+            for (int j=1; j<=n; j++) {
+                if(map[i][j]==1) return 1;
+            }
+        }
+        return 0;       
     }
     else if (num == 4) { // T4
+        map[2][col] = 1;
+        dot a(2, col);
 
+        map[3][col] = 1;
+        dot b(3, col);
+        
+        map[3][col+1] = 1;
+        dot c(3, col+1);
+
+        map[4][col] = 1;
+        dot d(4, col);
+
+        // falling down
+        int stop = 0;
+        while(!stop) {
+            if ( (d.i+1) <= (m+4)) {
+                if (map[c.i+1][c.j] == 0 && map[d.i+1][d.j] == 0){
+                    // a
+                    map[a.i][a.j] = 0;
+                    a.i++;
+                    // b
+                    b.i++;
+                    // c
+                    map[c.i][c.j] = 0;
+                    c.i++;
+                    map[c.i][c.j] = 1;
+                    // d
+                    d.i++;
+                    map[d.i][d.j] = 1;
+                }
+                else stop = 1;
+            }
+            else stop = 1;
+        }
+        //看是否可以消除
+        int clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[d.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[d.i][j] = 0;
+            }
+            for (int i = d.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+            a.i++; b.i++; c.i++;
+        }
+        //看 bc 是否可以消除
+        clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[b.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[b.i][j] = 0;
+            }
+            for (int i = b.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+            a.i++;
+        }
+        //判斷是不是輸掉 看上面那塊區域還有沒有1
+        for (int i=1; i<5; i++) {
+            for (int j=1; j<=n; j++) {
+                if(map[i][j]==1) return 1;
+            }
+        }
+        return 0;
     }
     else if (num == 5) { // L1
+        map[2][col] = 1;
+        dot a(2, col);
+
+        map[3][col] = 1;
+        dot b(3, col);
+
+        map[4][col] = 1;
+        dot c(4, col);
+
+        map[4][col+1] = 1;
+        dot d(4, col+1);
+
+        // falling down
+        int stop = 0;
+        while(!stop) {
+            if ( (d.i+1) <= (m+4) ) {
+                if(map[c.i+1][c.j] == 0 && map[d.i+1][d.j] == 0) {
+                    // a
+                    map[a.i][a.j] = 0;
+                    a.i++;
+                    // b
+                    b.i++;
+                    // c
+                    c.i++;
+                    map[c.i][c.j] = 1;
+                    // d
+                    map[d.i][d.j] = 0;
+                    d.i++;
+                    map[d.i][d.j] = 1;
+                }
+                else stop = 1;
+            }
+            else stop = 1;
+        }
+        //看是否可以消除
+        int clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[d.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[d.i][j] = 0;
+            }
+            for (int i = d.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+            a.i++; b.i++;
+        }
+        //看 b 是否可以消除
+        clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[b.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[b.i][j] = 0;
+            }
+            for (int i = b.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+            a.i++;
+        }
+        //判斷是不是輸掉 看上面那塊區域還有沒有1
+        for (int i=1; i<5; i++) {
+            for (int j=1; j<=n; j++) {
+                if(map[i][j]==1) return 1;
+            }
+        }
+        return 0;
+    }
+    else if (num == 6) { // L2
+        map[3][col] = 1;
+        dot a(3, col);
+
+        map[3][col+1] = 1;
+        dot b(3, col+1);
+
+        map[3][col+2] = 1;
+        dot c(3, col+2);
+
+        map[4][col] = 1;
+        dot d(4, col);
+
+        // falling down
+        int stop = 0;
+        while(!stop) {
+            if ( (d.i+1) <= (m+4) ) {
+                if(map[d.i+1][d.j] == 0 && map[b.i+1][b.j] == 0 && map[c.i+1][c.j] == 0) {
+                    // a
+                    map[a.i][a.j] = 0;
+                    a.i++;
+                    // b
+                    map[b.i][b.j] = 0;
+                    b.i++;
+                    map[b.i][b.j] = 1;
+                    // c
+                    map[c.i][c.j] = 0;
+                    c.i++;
+                    map[c.i][c.j] = 1;
+                    // d
+                    d.i++;
+                    map[d.i][d.j] = 1;
+                }
+                else stop = 1;
+            }
+            else stop = 1;
+        }
+        //看是否可以消除
+        int clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[d.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[d.i][j] = 0;
+            }
+            for (int i = d.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+            a.i++; b.i++; c.i++;
+        }
+        //看 abc 是否可以消除
+        clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[b.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[b.i][j] = 0;
+            }
+            for (int i = b.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+        }
+        //判斷是不是輸掉 看上面那塊區域還有沒有1
+        for (int i=1; i<5; i++) {
+            for (int j=1; j<=n; j++) {
+                if(map[i][j]==1) return 1;
+            }
+        }
+        return 0;
+    }
+    else if (num == 7) { // L3
+        map[2][col] = 1;
+        dot a(2, col);
+        
+        map[2][col+1] = 1;
+        dot b(2, col+1);
+
+        map[3][col+1] = 1;
+        dot c(3, col+1);
+
+        map[4][col+1] = 1;
+        dot d(4, col+1);
+
+        // falling down
+        int stop = 0;
+        while(!stop) {
+            if ( (d.i+1) <= (m+4) ) {
+                if(map[a.i+1][a.j] == 0 && map[d.i+1][d.j] == 0) {
+                    // a
+                    map[a.i][a.j] = 0;
+                    a.i++;
+                    map[a.i][a.j] = 1;
+                    // b
+                    map[b.i][b.j] = 0;
+                    b.i++;
+                    // c
+                    c.i++;
+                    // d
+                    d.i++;
+                    map[d.i][d.j] = 1;
+                }
+                else stop = 1;
+            }
+            else stop = 1;
+        }
+        //看是否可以消除
+        int clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[d.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[d.i][j] = 0;
+            }
+            for (int i = d.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+            a.i++; b.i++; c.i++;
+        }
+        //看 c 是否可以消除
+        clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[c.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[c.i][j] = 0;
+            }
+            for (int i = c.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+        }
+        //看 ab 是否可以消除
+        clear = 1;
+        for (int j=1; j<=n; j++) {
+            if (map[b.i][j] == 0) clear = 0;
+        }
+        if (clear) {
+            for (int j=1; j<=n; j++) {
+                map[b.i][j] = 0;
+            }
+            for (int i = b.i-1; i>1; i--) { // 上面全部都往下移
+                for (int j=1; j<=n; j++) {
+                    map[i+1][j] = map[i][j];
+                    map[i][j] = 0;
+                }
+            }
+        }
+        //判斷是不是輸掉 看上面那塊區域還有沒有1
+        for (int i=1; i<5; i++) {
+            for (int j=1; j<=n; j++) {
+                if(map[i][j]==1) return 1;
+            }
+        }
+        return 0;
+    }
+    else if (num == 8) { // L4
+        map[3][col+2] = 1;
+        dot a(3, col+2);
+
+        map[4][col] = 1;
+        dot b(4, col);
+
+        map[4][col+1] = 1;
+        dot c(4, col+1);
+
+        map[4][col+2] = 1;
+        dot d(4, col+2);
+
+        // falling down
+        int stop = 0;
+        while(!stop) {
+            if ( (d.i+1) <= (m+4) ) {
+                if(map[b.i+1][b.j] == 0 && map[c.i+1][c.j] == 0 && map[d.i+1][d.j] == 0) {
+                    // a
+                    map[a.i][a.j] = 0;
+                    a.i++;
+                    // b
+                    map[b.i][b.j] = 0;
+                    b.i++;
+                    map[b.i][b.j] = 1;
+                    // c
+                    map[c.i][c.j] = 0;
+                    c.i++;
+                    map[c.i][c.j] = 1;
+                    // d
+                    d.i++;
+                    map[d.i][d.j] = 1;
+                }
+            } 
+        }
+    }
+    else if (num == 9) { // J1
+
+    }
+    else if (num == 10) { // J2
+
+    }
+    else if (num == 11) { // J3
+
+    }
+    else if (num == 12) { // J4
 
     }
     return 0;
