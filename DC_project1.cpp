@@ -4,7 +4,7 @@ using namespace std;
 
 // gobal variable
 int m, n;
-int map[20][41] = {0};
+int map[45][16] = {0};
 
 int block_T1[4][3] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0};                  // num = 1
 int block_T2[4][3] = {0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0};                  // num = 2
